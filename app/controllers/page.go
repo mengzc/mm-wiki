@@ -6,12 +6,15 @@ import (
 	"github.com/phachon/mm-wiki/app"
 	"github.com/phachon/mm-wiki/app/models"
 	"github.com/phachon/mm-wiki/app/utils"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/astaxie/beego"
+	"github.com/microcosm-cc/bluemonday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type PageController struct {
@@ -373,6 +376,7 @@ func (this *PageController) Export() {
 	if documentId == "" {
 		this.ViewError("文档未找到！")
 	}
+	output := this.GetString("output", "markdown")
 
 	document, err := models.DocumentModel.GetDocumentByDocumentId(documentId)
 	if err != nil {
@@ -414,20 +418,44 @@ func (this *PageController) Export() {
 		this.ViewError("父文档不存在！")
 	}
 
-	packFiles := []*utils.CompressFileInfo{}
-
 	absPageFile := utils.Document.GetAbsPageFileByPageFile(pageFile)
-	// pack document file
-	packFiles = append(packFiles, &utils.CompressFileInfo{
-		File:       absPageFile,
-		PrefixPath: "",
-	})
 
 	// get document attachments
 	attachments, err := models.AttachmentModel.GetAttachmentsByDocumentId(documentId)
 	if err != nil {
 		this.ErrorLog("查找文档附件失败：" + err.Error())
 		this.ViewError("查找文档附件失败！")
+	}
+
+	var dest = fmt.Sprintf("%s/mm_wiki/%s_%s.zip", os.TempDir(), document["name"], output)
+	packFiles := []*utils.CompressFileInfo{}
+	if output == "markdown" {
+		// pack document file
+		packFiles = append(packFiles, &utils.CompressFileInfo{
+			File:       absPageFile,
+			PrefixPath: "",
+		})
+	} else if output == "html" {
+		text, err := ioutil.ReadFile(absPageFile)
+		if err != nil {
+			this.ErrorLog("读取文档失败：" + err.Error())
+			this.ViewError("读取文档失败！")
+		}
+		unsafe := blackfriday.Run(text)
+		html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
+		htmlstr := strings.ReplaceAll(string(html), "src=\"/images/", "src=\"images/")
+		htmlDir := fmt.Sprintf("%s/mm_wiki_html", os.TempDir())
+		os.MkdirAll(htmlDir, 0777)
+		htmlFile := fmt.Sprintf("%s/%s.html", htmlDir, document["name"])
+		ioutil.WriteFile(htmlFile, []byte(htmlstr), 0777)
+		// pack document file
+		packFiles = append(packFiles, &utils.CompressFileInfo{
+			File:       htmlFile,
+			PrefixPath: "",
+		})
+	} else {
+		this.ErrorLog("不支持的导出类型：" + output)
+		this.ViewError("不支持的导出类型：" + output)
 	}
 	for _, attachment := range attachments {
 		if attachment["path"] == "" {
@@ -441,14 +469,15 @@ func (this *PageController) Export() {
 		}
 		packFiles = append(packFiles, packFile)
 	}
-	var dest = fmt.Sprintf("%s/mm_wiki/%s.zip", os.TempDir(), document["name"])
+
 	err = utils.Zipx.PackFile(packFiles, dest)
 	if err != nil {
 		this.ErrorLog("导出文档附件失败：" + err.Error())
 		this.ViewError("导出文档失败！")
 	}
-
-	this.Ctx.Output.Download(dest, document["name"]+".zip")
+	var filename = document["name"] + "_" + output + ".zip"
+	filename = strings.ReplaceAll(filename," ","_")
+	this.Ctx.Output.Download(dest, filename)
 }
 
 func sendEmail(documentId string, username string, comment string, url string) error {

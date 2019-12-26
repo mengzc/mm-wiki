@@ -1,14 +1,15 @@
 package controllers
 
 import (
+	"errors"
+	"regexp"
 	"strings"
 
 	"github.com/phachon/mm-wiki/app/models"
 	"github.com/phachon/mm-wiki/app/utils"
 
-	"github.com/astaxie/beego/validation"
+	"github.com/asaskevich/govalidator"
 	valid "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 )
 
 type AuthController struct {
@@ -54,23 +55,15 @@ func (this *AuthController) Save() {
 	}
 	name := strings.TrimSpace(this.GetString("name", ""))
 	url := strings.TrimSpace(this.GetString("url", ""))
-	usernamePrefix := strings.TrimSpace(this.GetString("username_prefix", ""))
 	extData := strings.TrimSpace(this.GetString("ext_data", ""))
 
-	v := validation.Validation{}
 	if name == "" {
-		this.jsonError("登录认证名称不能为空！")
-	}
-	if usernamePrefix == "" {
-		this.jsonError("用户名前缀不能为空！")
-	}
-	if !v.AlphaNumeric(usernamePrefix, "username_prefix").Ok {
-		this.jsonError("用户名前缀格式不正确！")
+		this.jsonError("登录认证域名称不能为空！")
 	}
 	if url == "" {
 		this.jsonError("认证URL不能为空！")
 	}
-	if valid.Validate(url, is.URL) != nil {
+	if valid.Validate(url, valid.By(checkAuthUrl)) != nil {
 		this.jsonError("认证URL格式不正确！")
 	}
 
@@ -80,22 +73,12 @@ func (this *AuthController) Save() {
 		this.jsonError("添加登录认证失败！")
 	}
 	if ok {
-		this.jsonError("登录认证名称已经存在！")
-	}
-
-	ok, err = models.AuthModel.HasAuthUsernamePrefix(usernamePrefix)
-	if err != nil {
-		this.ErrorLog("添加登录认证失败：" + err.Error())
-		this.jsonError("添加登录认证失败！")
-	}
-	if ok {
-		this.jsonError("用户名前缀已经存在！")
+		this.jsonError("登录认证域名称已经存在！")
 	}
 
 	authId, err := models.AuthModel.Insert(map[string]interface{}{
 		"name":            name,
 		"url":             url,
-		"username_prefix": usernamePrefix,
 		"ext_data":        extData,
 	})
 
@@ -131,26 +114,18 @@ func (this *AuthController) Modify() {
 	authId := this.GetString("login_auth_id", "")
 	name := strings.TrimSpace(this.GetString("name", ""))
 	url := strings.TrimSpace(this.GetString("url", ""))
-	usernamePrefix := strings.TrimSpace(this.GetString("username_prefix", ""))
 	extData := strings.TrimSpace(this.GetString("ext_data", ""))
 
-	v := validation.Validation{}
 	if authId == "" {
 		this.jsonError("登录认证不存在！")
 	}
 	if name == "" {
-		this.jsonError("登录认证名称不能为空！")
-	}
-	if usernamePrefix == "" {
-		this.jsonError("用户名前缀不能为空！")
-	}
-	if !v.AlphaNumeric(usernamePrefix, "username_prefix").Ok {
-		this.jsonError("用户名前缀格式不正确！")
+		this.jsonError("登录认证域名称不能为空！")
 	}
 	if url == "" {
 		this.jsonError("认证URL不能为空！")
 	}
-	if valid.Validate(url, is.URL) != nil {
+	if valid.Validate(url, valid.By(checkAuthUrl)) != nil {
 		this.jsonError("认证URL格式不正确！")
 	}
 
@@ -165,17 +140,12 @@ func (this *AuthController) Modify() {
 
 	ok, _ := models.AuthModel.HasSameName(authId, name)
 	if ok {
-		this.jsonError("登录认证名称已经存在！")
-	}
-	ok, _ = models.AuthModel.HasSameUsernamePrefix(authId, usernamePrefix)
-	if ok {
-		this.jsonError("用户名前缀已经存在！")
+		this.jsonError("登录认证域名称已经存在！")
 	}
 
 	_, err = models.AuthModel.Update(authId, map[string]interface{}{
 		"name":            name,
 		"url":             url,
-		"username_prefix": usernamePrefix,
 		"ext_data":        extData,
 	})
 
@@ -234,7 +204,7 @@ func (this *AuthController) Used() {
 	if len(auth) == 0 {
 		this.jsonError("登录认证不存在")
 	}
-	_, err = models.AuthModel.SetAuthUsed(authId)
+	_, err = models.AuthModel.SetAuthUsed(authId,1)
 	if err != nil {
 		this.ErrorLog("登录认证 " + authId + " 启用失败: " + err.Error())
 		this.jsonError("登录认证启用失败")
@@ -244,6 +214,44 @@ func (this *AuthController) Used() {
 	this.jsonSuccess("启用登录认证成功", nil, "/system/auth/list")
 }
 
+func (this *AuthController) Unused() {
+
+	if !this.IsPost() {
+		this.ViewError("请求方式有误！", "/system/auth/list")
+	}
+	authId := this.GetString("login_auth_id", "")
+	if authId == "" {
+		this.jsonError("没有选择登录认证！")
+	}
+
+	auth, err := models.AuthModel.GetAuthByAuthId(authId)
+	if err != nil {
+		this.ErrorLog("登录认证 " + authId + " 停用失败: " + err.Error())
+		this.jsonError("登录认证停用失败")
+	}
+	if len(auth) == 0 {
+		this.jsonError("登录认证不存在")
+	}
+	_, err = models.AuthModel.SetAuthUsed(authId,0)
+	if err != nil {
+		this.ErrorLog("登录认证 " + authId + " 停用失败: " + err.Error())
+		this.jsonError("登录认证停用失败")
+	}
+
+	this.InfoLog("停用登录认证 " + authId + " 成功")
+	this.jsonSuccess("停用登录认证成功", nil, "/system/auth/list")
+}
+
 func (this *AuthController) Doc() {
 	this.viewLayout("auth/doc", "auth")
+}
+
+func checkAuthUrl(value interface{}) error {
+	s, _ := value.(string)
+	URL   := `^((ldaps?|https?):\/\/)?` + govalidator.URLUsername + `?` + `((` + govalidator.URLIP + `|(\[` + govalidator.IP + `\])|(([a-zA-Z0-9]([a-zA-Z0-9-_]+)?[a-zA-Z0-9]([-\.][a-zA-Z0-9]+)*)|(` + govalidator.URLSubdomain + `?))?(([a-zA-Z\x{00a1}-\x{ffff}0-9]+-?-?)*[a-zA-Z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-zA-Z\x{00a1}-\x{ffff}]{1,}))?))\.?` + govalidator.URLPort + `?` + govalidator.URLPath + `?$`
+	rxURL := regexp.MustCompile(URL)
+	if rxURL.MatchString(s){
+		return nil
+	}
+	return errors.New("Must be ldap url or http url .")
 }

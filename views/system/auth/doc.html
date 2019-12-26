@@ -2,13 +2,43 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading"><strong><i class="fa fa-file-text-o"></i> 认证接口开发文档</strong></div>
+                <div class="panel-heading"><strong><i class="fa fa-file-text-o"></i> 认证接口配置文档</strong></div>
+                <div class="panel-body"></div>
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td class="w10p"><strong>内置LDAP</strong></td>
+                        <td>
+<pre>
+认证域名称: LDAP域名称
+认证URL: ldap://host:port
+扩展数据: LDAP域Base，如dc=xxx,dc=com
+</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>HTTP认证</strong></td>
+                        <td>
+<pre>
+认证域名称: HTTP虚拟域名称
+认证URL: http://host:port/path
+扩展数据: 按HTTP认证接口要求
+</pre>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong><i class="fa fa-file-text-o"></i> HTTP认证接口开发文档</strong></div>
                 <div class="panel-body"></div>
                 <table class="table table-bordered">
                     <tbody>
                     <tr>
                         <td class="w10p"><strong>接口URL</strong></td>
-                        <td>统一登录认证接口地址（例如：http://intra.mmWiki.com/login/ldap）</td>
+                        <td>统一登录认证接口地址（例如：http://intra.mmWiki.com/login/auth）</td>
                     </tr>
                     <tr>
                         <td><strong>请求方式</strong></td>
@@ -47,7 +77,7 @@ ext_data: 登录认证扩展数据（string）
                     <tr>
                         <td><strong>失败返回</strong></td>
                         <td>必须为 json 字符串
-<pre>
+                            <pre>
 {
     "message": "密码错误", // 失败原因，失败时不能为空
     "data": {} // 失败时为空
@@ -55,16 +85,9 @@ ext_data: 登录认证扩展数据（string）
 </pre>
                         </td>
                     </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong><i class="fa fa-file-code-o"></i> PHP 代码示例 </strong></div>
-                <div class="panel-body">
+                    <tr>
+                        <td><strong>PHP 代码示例</strong></td>
+                        <td>
 <pre>
 <?php
 // 获取数据
@@ -106,7 +129,11 @@ $result = [
 ];
 echo json_encode($result, JSON_UNESCAPED_UNICODE);
 </pre>
-                </div>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

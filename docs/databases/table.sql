@@ -245,10 +245,9 @@ CREATE TABLE `mw_link` (
 DROP TABLE IF EXISTS `mw_login_auth`;
 CREATE TABLE `mw_login_auth` (
   `login_auth_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '认证表主键ID',
-  `name` varchar(30) NOT NULL COMMENT '登录认证名称',
-  `username_prefix` varchar(30) NOT NULL COMMENT '用户名前缀',
+  `name` varchar(30) NOT NULL COMMENT '登录认证域名称',
   `url` varchar(200) NOT NULL COMMENT '认证接口 url',
-  `ext_data` char(100) NOT NULL DEFAULT '' COMMENT '额外数据: token=aaa&key=bbb',
+  `ext_data` char(100) NOT NULL DEFAULT '' COMMENT '额外数据',
   `is_used` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否被使用， 0 默认不使用 1 使用',
   `is_delete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除 0 否 1 是',
   `create_time` int(11) NOT NULL COMMENT '创建时间',

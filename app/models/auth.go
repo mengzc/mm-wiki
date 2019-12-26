@@ -51,23 +51,6 @@ func (a *Auth) HasSameName(authId, name string) (has bool, err error) {
 	return
 }
 
-// auth_id and name is exists
-func (a *Auth) HasSameUsernamePrefix(authId, usernamePrefix string) (has bool, err error) {
-	db := G.DB()
-	var rs *mysql.ResultSet
-	rs, err = db.Query(db.AR().From(Table_Auth_Name).Where(map[string]interface{}{
-		"login_auth_id <>": authId,
-		"username_prefix":  usernamePrefix,
-	}).Limit(0, 1))
-	if err != nil {
-		return
-	}
-	if rs.Len() > 0 {
-		has = true
-	}
-	return
-}
-
 // name is exists
 func (a *Auth) HasAuthName(name string) (has bool, err error) {
 	db := G.DB()
@@ -84,21 +67,6 @@ func (a *Auth) HasAuthName(name string) (has bool, err error) {
 	return
 }
 
-// name is exists
-func (a *Auth) HasAuthUsernamePrefix(usernamePrefix string) (has bool, err error) {
-	db := G.DB()
-	var rs *mysql.ResultSet
-	rs, err = db.Query(db.AR().From(Table_Auth_Name).Where(map[string]interface{}{
-		"username_prefix": usernamePrefix,
-	}).Limit(0, 1))
-	if err != nil {
-		return
-	}
-	if rs.Len() > 0 {
-		has = true
-	}
-	return
-}
 
 // get auth by name
 func (a *Auth) GetAuthByName(name string) (auth map[string]string, err error) {
@@ -131,19 +99,7 @@ func (a *Auth) Insert(authValue map[string]interface{}) (id int64, err error) {
 	db := G.DB()
 	var rs *mysql.ResultSet
 
-	// is_used
-	rs, err = db.Query(db.AR().From(Table_Auth_Name).Where(map[string]interface{}{
-		"is_used": Auth_Used_True,
-	}).Limit(0, 1))
-	if err != nil {
-		return
-	}
-	if rs.Len() == 0 {
-		authValue["is_used"] = Auth_Used_True
-	} else {
-		authValue["is_used"] = Auth_Used_False
-	}
-
+	authValue["is_used"] = Auth_Used_True
 	authValue["create_time"] = time.Now().Unix()
 	authValue["update_time"] = time.Now().Unix()
 	rs, err = db.Exec(db.AR().Insert(Table_Auth_Name, authValue))
@@ -281,17 +237,11 @@ func (a *Auth) GetAuthByAuthIds(authIds []string) (auths []map[string]string, er
 }
 
 // set auth used
-func (a *Auth) SetAuthUsed(authId string) (id int64, err error) {
+func (a *Auth) SetAuthUsed(authId string,authUse int) (id int64, err error) {
 	db := G.DB()
 	var rs *mysql.ResultSet
 
-	rs, err = db.Exec(db.AR().Update(Table_Auth_Name, map[string]interface{}{"is_used": Auth_Used_False}, map[string]interface{}{
-		"is_used": Auth_Used_True,
-	}))
-	if err != nil {
-		return
-	}
-	rs, err = db.Exec(db.AR().Update(Table_Auth_Name, map[string]interface{}{"is_used": Auth_Used_True}, map[string]interface{}{
+	rs, err = db.Exec(db.AR().Update(Table_Auth_Name, map[string]interface{}{"is_used": authUse}, map[string]interface{}{
 		"login_auth_id": authId,
 	}))
 	if err != nil {
@@ -301,17 +251,3 @@ func (a *Auth) SetAuthUsed(authId string) (id int64, err error) {
 	return
 }
 
-// get used auth
-func (a *Auth) GetUsedAuth() (auth map[string]string, err error) {
-
-	db := G.DB()
-	var rs *mysql.ResultSet
-	rs, err = db.Query(db.AR().Select("*").From(Table_Auth_Name).Where(map[string]interface{}{
-		"is_used": Auth_Used_True,
-	}).Limit(0, 1))
-	if err != nil {
-		return
-	}
-	auth = rs.Row()
-	return
-}

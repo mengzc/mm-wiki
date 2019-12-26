@@ -6,16 +6,11 @@
     <div class="login">
         <div class="tabs">
             <input type="radio" id="tab1" name="tab-control" checked>
-            <input type="radio" id="tab2" name="tab-control">
             <ul>
-                <li title="普通登录" style="border-right: 2px solid #929daf">
-                    <label for="tab1" role="button"><br><span>普通登录</span></label>
-                </li>
-                <li title="统一登录">
-                    <label for="tab2" role="button"><br><span>统一登录</span></label>
+                <li title="平台登录" >
+                    <label for="tab1" role="button"><br><span>平台登录</span></label>
                 </li>
             </ul>
-            <div class="slider"><div class="indicator"></div></div>
             <div class="content">
                 <section>
                     <form role="form" action="/author/login" method="post" onsubmit="return false">
@@ -33,25 +28,6 @@
                                 </div>
                             </div>
                             <input id="default_login" name="submit" type="button" value="登录" class="btn btn-primary btn-block" onclick="Login.ajaxSubmit(this.form)">
-                        </fieldset>
-                    </form>
-                </section>
-                <section>
-                    <form role="form" action="/author/authLogin" method="post" onsubmit="return false">
-                        <fieldset>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <span class="input-group-addon" id="username"><i class="glyphicon glyphicon-user"></i></span>
-                                    <input type="text" name="username" class="form-control" placeholder="请输入统一登录用户名" {{if ne .sso_open "1"}} disabled="disabled" {{end}} onkeydown="KeyDown('#auth_login')" autocomplete="new-username">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <span class="input-group-addon" id="password"><i class="glyphicon glyphicon-lock"></i></span>
-                                    <input type="password" name="password" class="form-control" placeholder="请输入统一登录密码" {{if ne .sso_open "1"}} disabled="disabled" {{end}} onkeydown="KeyDown('#auth_login')" autocomplete="new-password">
-                                </div>
-                            </div>
-                            <input id="auth_login" name="submit" type="button" value="登录" class="btn btn-primary" {{if eq .sso_open "1"}} onclick="Login.ajaxSubmit(this.form)" {{else}} disabled="disabled" {{end}}>
                         </fieldset>
                     </form>
                 </section>

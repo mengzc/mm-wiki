@@ -24,8 +24,7 @@
                 <thead>
                 <tr>
                     <th class="w5p">ID</th>
-                    <th class="w13p">名称</th>
-                    <th class="w8p">用户名前缀</th>
+                    <th class="w13p">认证域名称</th>
                     <th>认证URL</th>
                     <th class="w20p">额外数据</th>
                     <th class="w8p">是否启用</th>
@@ -37,7 +36,6 @@
                 <tr>
                     <td class="center">{{$auth.login_auth_id}}</td>
                     <td>{{$auth.name}}</td>
-                    <td>{{$auth.username_prefix}}</td>
                     <td>{{$auth.url}}</td>
                     <td>{{$auth.ext_data}}</td>
                     <td class="center">
@@ -49,7 +47,9 @@
                     </td>
                     <td class="center">
                         <a name="edit" data-link="/system/auth/edit?login_auth_id={{$auth.login_auth_id}}"><i class="glyphicon glyphicon-edit"></i>修改</a>
-                        {{if eq $auth.is_used "1"}}{{else}}
+                        {{if eq $auth.is_used "1"}}
+                            <a onclick="Layers.confirm('确定要停用该登录认证吗？', '/system/auth/unused?login_auth_id={{$auth.login_auth_id}}');"><i class="glyphicon glyphicon-ok-circle"></i>停用</a>
+                        {{else}}
                             <a onclick="Layers.confirm('确定要启用该登录认证吗？', '/system/auth/used?login_auth_id={{$auth.login_auth_id}}');"><i class="glyphicon glyphicon-ok-circle"></i>启用</a>
                         {{end}}
                         <a onclick="Layers.confirm('确定删除吗？', '/system/auth/delete?login_auth_id={{$auth.login_auth_id}}');"><i class="glyphicon glyphicon-trash"></i>删除</a>

@@ -79,7 +79,7 @@ func (this *TemplateController) isLogin() bool {
 		return false
 	}
 	cookieValue, _ := utils.Encrypt.Base64Decode(cookie)
-	identifyList := strings.Split(cookieValue, "@")
+	identifyList := strings.Split(cookieValue, "@@")
 	if cookieValue == "" || len(identifyList) != 2 {
 		return false
 	}

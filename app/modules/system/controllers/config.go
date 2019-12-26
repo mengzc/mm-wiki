@@ -45,7 +45,6 @@ func (this *ConfigController) Modify() {
 	mainDescription := strings.TrimSpace(this.GetString(models.Config_Key_MainDescription, ""))
 	autoFollowDocOpen := strings.TrimSpace(this.GetString(models.Config_Key_AutoFollowDoc, "0"))
 	sendEmailOpen := strings.TrimSpace(this.GetString(models.Config_Key_SendEmail, "0"))
-	ssoOpen := strings.TrimSpace(this.GetString(models.Config_Key_AuthLogin, "0"))
 
 	if sendEmailOpen == "1" {
 		email, err := models.EmailModel.GetUsedEmail()
@@ -55,17 +54,6 @@ func (this *ConfigController) Modify() {
 		}
 		if len(email) == 0 {
 			this.jsonError("开启邮件通知必须先启用一个邮件服务器配置！")
-		}
-	}
-
-	if ssoOpen == "1" {
-		auth, err := models.AuthModel.GetUsedAuth()
-		if err != nil {
-			this.ErrorLog("获取可用的登录认证失败: " + err.Error())
-			this.jsonError("配置出错！")
-		}
-		if len(auth) == 0 {
-			this.jsonError("开启统一登录必须先添加并启用一个登录认证！")
 		}
 	}
 
@@ -91,12 +79,6 @@ func (this *ConfigController) Modify() {
 	if err != nil {
 		this.ErrorLog("修改配置 send_email_open  失败: " + err.Error())
 		this.jsonError("开启邮件通知配置失败！")
-	}
-
-	_, err = models.ConfigModel.UpdateByKey(models.Config_Key_AuthLogin, ssoOpen)
-	if err != nil {
-		this.ErrorLog("修改配置 sso_open  失败: " + err.Error())
-		this.jsonError("开启统一登录配置失败！")
 	}
 
 	this.InfoLog("修改全局配置成功")

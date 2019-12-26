@@ -4,9 +4,10 @@ go 1.12
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
+	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/astaxie/beego v1.12.0
 	github.com/fatih/color v1.7.0
+	github.com/go-ldap/ldap/v3 v3.1.5
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-sql-driver/mysql v1.4.1

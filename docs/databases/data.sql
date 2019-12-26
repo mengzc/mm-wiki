@@ -160,5 +160,4 @@ INSERT INTO `mw_config` VALUES ('1', '主页标题', 'main_title', '这里可以
 INSERT INTO `mw_config` VALUES ('2', '主页描述', 'main_description', '这是写一些描述：请使用域账号登录，使用中有任何问题请联系管理员 root@xxx.com！', unix_timestamp(now()), unix_timestamp(now()));
 INSERT INTO `mw_config` VALUES ('3', '是否开启自动关注', 'auto_follow_doc_open', '', unix_timestamp(now()), unix_timestamp(now()));
 INSERT INTO `mw_config` VALUES ('4', '是否开启邮件通知', 'send_email_open', '', unix_timestamp(now()), unix_timestamp(now()));
-INSERT INTO `mw_config` VALUES ('5', '是否开启统一登录', 'sso_open', '', unix_timestamp(now()), unix_timestamp(now()));
 -- INSERT INTO `mw_config` VALUES ('6', '系统版本号', 'system_version', 'v0.0.0', unix_timestamp(now()), unix_timestamp(now()));

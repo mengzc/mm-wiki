@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/phachon/mm-wiki/app/models"
+	"strings"
 )
 
 type MainController struct {
@@ -42,6 +43,15 @@ func (this *MainController) Index() {
 		if err != nil {
 			this.ViewError("查找用户权限失败！")
 		}
+	}
+	if strings.Contains(user["username"],"@") {
+		var controllers1 []map[string]string
+		for _, c := range controllers {
+			if c["privilege_id"] != "8" {
+				controllers1 = append(controllers1, c)
+			}
+		}
+		controllers = controllers1
 	}
 
 	this.Data["menus"] = menus

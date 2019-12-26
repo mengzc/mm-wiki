@@ -12,7 +12,6 @@ const (
 	Config_Key_MainDescription = "main_description"
 	Config_Key_AutoFollowDoc   = "auto_follow_doc_open"
 	Config_Key_SendEmail       = "send_email_open"
-	Config_Key_AuthLogin       = "sso_open"
 	Config_Key_SystemVersion   = "system_version"
 )
 

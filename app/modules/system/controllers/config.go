@@ -26,9 +26,6 @@ func (this *ConfigController) Global() {
 		if config["key"] == models.Config_Key_SendEmail && config["value"] != "1" {
 			config["value"] = "0"
 		}
-		if config["key"] == models.Config_Key_AuthLogin && config["value"] != "1" {
-			config["value"] = "0"
-		}
 		configValue[config["key"]] = config["value"]
 	}
 

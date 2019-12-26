@@ -18,14 +18,6 @@ type AuthorController struct {
 // login index
 func (this *AuthorController) Index() {
 
-	// is open auth login
-	ssoOpen := "0"
-	config, err := models.ConfigModel.GetConfigByKey(models.Config_Key_AuthLogin)
-	if err == nil && len(config) > 0 && config["value"] == "1" {
-		ssoOpen = "1"
-	}
-
-	this.Data["sso_open"] = ssoOpen
 	this.viewLayout("author/login", "author")
 }
 
